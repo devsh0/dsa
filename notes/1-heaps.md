@@ -1,10 +1,13 @@
 ### Heap
 
-##### Heap is a nearly complete binary tree whose nodes are obtained from an array.
+##### Heap is a nearly complete binary tree whose node values are obtained from an array.
 
 ![heap-diagram](../static/heaps.jpeg)
 
-_fig(a) is the heap formed of elements of the array shown in fig(b)_.
+_fig(a) is the heap formed of elements of the array shown in fig(b)_. Each circle
+represents a node and the number within it is the value that this node stores.
+The number outside the circle is the corresponding index for this value in the
+array in fig(b), assuming that the array is 1-indexed.
 
 ### Types of Heaps
 There are two types of heaps: max and min. A max heap has the largest node 
