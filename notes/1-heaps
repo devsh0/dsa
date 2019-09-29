@@ -1,0 +1,6 @@
+### Heap
+
+###### Heap is a nearly complete binary tree whose nodes are obtained from an array.
+
+![heap-diagram](../static/heaps.jpeg)
+_fig(a) is the heap formed of elements of the array shown in fig(b)_
