@@ -4,7 +4,7 @@
 elements of an array.**
 
 ![heap-diagram](../static/heaps.jpeg)
-<p style="text-align: center"><strong>Fig (1)</strong></p>
+**Fig (1)**
 
 _fig(a) is the heap formed of elements of the array shown in fig(b). Each circle
 represents a node and the number within it is the value that this node stores.
@@ -40,3 +40,11 @@ number being doubled, which is essentially what we do to find the left children
 of _i_. Similarly, shifting the bits right by one position halves the original
 number and, given that the number is being treated as an integer, the fractional
 part will be dropped. This will give us the parent for node at _i_.
+
+### Height of Heap
+Height of a heap can be described as the number of edges (lines) on the longest
+simple downward path from the root to a leaf (nodes having no children). In _fig(1)_,
+the heap has a height of 3. Height of individual nodes is the number of edges on the
+longest simple downward path from that node, leading to a leaf. The _4th_ node, the
+one having the value 4 in _fig(1)_, has height 1. Height of a heap is the height of
+its root node.
