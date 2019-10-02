@@ -6,4 +6,5 @@ public interface Stack<T> {
     boolean isEmpty();
     boolean contains(T value);
     void clear();
+    int size();
 }
