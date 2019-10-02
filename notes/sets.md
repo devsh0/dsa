@@ -1,7 +1,7 @@
 ### Set
 Set is elementary to all other data structures in computer science. Unlike math, sets
 in cs can grow or shrink in size. Hence, they are called dynamic sets. A **dictionary**
-is a set supporting these basic queries: insert (insert an element to the set), delete
+is a set supporting these basic operations: insert (insert an element to the set), delete
 (remove an element from the set), and test (test the membership of an element in the
 set).
 
@@ -11,7 +11,7 @@ attributes. Some dynamic sets assume that one of the property of the set is a ke
 that can be used to identify the set. Given that the keys are unique across all the
 elements in the set, we can treat the set as a set of key-value pairs.
 
-### Operations on Dynamic Sets
+### Operations on Sets
 Depending on the application requirements, a dynamic set may support all or a subset
 of operations listed below:
 

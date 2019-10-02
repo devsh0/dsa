@@ -1,5 +1,6 @@
 package com.dsa.data_structures.dynamic_lists;
 
+@SuppressWarnings("unchecked")
 public class DynamicArray<T> implements DynamicList<T> {
     private int capacity = 10;
     private int size = 0;
