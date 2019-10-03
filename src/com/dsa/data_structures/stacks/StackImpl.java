@@ -2,19 +2,29 @@ package com.dsa.data_structures.stacks;
 
 @SuppressWarnings("unchecked")
 public class StackImpl<T> implements Stack<T> {
-    private final int capacity = 1000;
-    private Object[] data = new Object[capacity];
+    private final int capacity;
+    private Object[] data;
     private int topIndex = -1;
     private int size = 0;
 
+    public StackImpl (int initialCapacity) {
+        capacity = initialCapacity;
+        data = new Object[capacity];
+    }
+
     @Override
     public boolean isEmpty () {
-        return topIndex < 0;
+        return size == 0;
+    }
+
+    @Override
+    public boolean isFull() {
+        return size == capacity;
     }
 
     @Override
     public void push(T element) {
-        if (topIndex == capacity)
+        if (isFull())
             throw new RuntimeException("Stack overflow");
         data[++topIndex] = element;
         ++size;

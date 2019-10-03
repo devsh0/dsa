@@ -2,32 +2,44 @@ package com.dsa.data_structures.queues;
 
 @SuppressWarnings("unchecked")
 public class QueueImpl<T> implements Queue<T> {
-    private final int capacity = 1000;
-    private Object[] data = new Object[capacity];
+    private final int capacity;
+    private Object[] data;
     private int size = 0;
     private int head = 0;
     private int tail = 0;
 
+    public QueueImpl(int initialCapacity) {
+        capacity = initialCapacity;
+        data = new Object[capacity];
+    }
+
     @Override
     public boolean isEmpty() {
-        return this.head == tail;
+        return size == 0;
+    }
+
+    @Override
+    public boolean isFull() {
+        return size == capacity;
     }
 
     @Override
     public void enqueue(T value) {
-        if (tail == head)
+        if (isFull())
             throw new RuntimeException("Queue overflow");
         data[tail] = value;
         ++size;
-        tail = tail == capacity ? 0 : tail + 1;
+        tail = tail == capacity - 1 ? 0 : tail + 1;
     }
 
     @Override
     public T dequeue() {
-        if (head == tail)
+        if (isEmpty())
             throw new RuntimeException("Queue underflow");
         --size;
-        return (T)data[head++];
+        T value = (T)data[head];
+        head = head == capacity - 1 ? 0 : head + 1;
+        return value;
     }
 
     @Override
