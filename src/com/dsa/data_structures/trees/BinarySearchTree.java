@@ -1,7 +1,5 @@
 package com.dsa.data_structures.trees;
 
-import com.dsa.data_structures.stacks.StackImpl;
-
 import java.util.Random;
 import java.util.Stack;
 
@@ -49,12 +47,13 @@ public class BinarySearchTree {
         else parent.right = newNode;
     }
 
-    private void throwExceptionIfTreeIsEmpty() {
-        if (root == null)
+    private void throwExceptionIfTreeIsEmpty(Node...node) {
+        Node examine = node.length == 0 ? root : node[0];
+        if (examine == null)
             throw new RuntimeException("Tree is empty!");
     }
 
-    public void inorderTreeWalkUsingParent() {
+    public void inorderWalkUsingParentNode() {
         if (root == null)
             return;
 
@@ -88,7 +87,7 @@ public class BinarySearchTree {
         }
     }
 
-    public void inorderTreeWalkUsingStack () {
+    public void inorderWalkUsingStack() {
         if (root == null)
             return;
 
@@ -107,11 +106,11 @@ public class BinarySearchTree {
         }
     }
 
-    public void inorderTreeWalkRecursive(Node root) {
+    public void inorderWalkRecursive(Node root) {
         if (root != null) {
-            inorderTreeWalkRecursive(root.left);
+            inorderWalkRecursive(root.left);
             System.out.println(root.key);
-            inorderTreeWalkRecursive(root.right);
+            inorderWalkRecursive(root.right);
         }
     }
 
@@ -126,39 +125,92 @@ public class BinarySearchTree {
         throw new RuntimeException("Key does not exist!");
     }
 
-    public void delete(int key) {
+    // We assume that the key exists in the tree
+    public Node getInorderSuccessor (int key) {
         throwExceptionIfTreeIsEmpty();
+        Node current = root;
+        Node lastLeft = null;
+
+        while (current.key != key) {
+            if (current.key > key) {
+                lastLeft = current;
+                current = current.left;
+            }
+            else if (current.key < key)
+                current = current.right;
+        }
+
+        if (current.right != null)
+            return minimum(current.right);
+
+        return lastLeft;
+    }
+
+    // We assume that the key exists in the tree
+    public Node getInorderPredecessor (int key) {
+        throwExceptionIfTreeIsEmpty();
+        Node current = root;
+        Node lastRight = null;
+
+        while (current.key != key) {
+            if (current.key > key)
+                current = current.left;
+            else if (current.key < key) {
+                lastRight = current;
+                current = current.right;
+            }
+        }
+
+        if (current.left != null)
+            return maximum(current.left);
+
+        return lastRight;
+    }
+
+    public Node getInorderPredecessorUsingParent(int key) {
         Node node = inorderSearch(key);
 
-        // fixme: what if we are deleting the root of the tree?
+        if (node.left != null)
+            return maximum(node.left);
+
         Node parent = node.parent;
-        boolean atLeft = parent.left == node;
-
-        if (node.left == null && node.right == null) {
-            // leaf node
-            if (atLeft)
-                parent.left = null;
-            else parent.right = null;
-            return;
+        while (parent != null && parent.left == node) {
+            node = parent;
+            parent = node.parent;
         }
+        return parent;
+    }
 
-        if (node.left == null) {
-            node.right.parent = parent;
-            if (atLeft)
-                // node is at left and has no left children
-                parent.left = node.right;
-            else
-                // node is at right and has no left children
-                parent.right = node.right;
-        } else if (node.right == null) {
-            node.left.parent = parent;
-            if (atLeft)
-                // node is at left and has no right children
-                parent.left = node.left;
-            else
-                // node is at right and has no right children
-                parent.right = node.left;
+    public Node getInorderSuccessorUsingParent (int key) {
+        Node node = inorderSearch(key);
+
+        if (node.right != null)
+            return minimum(node.right);
+
+        Node parent = node.parent;
+        while (parent != null && parent.right == node) {
+            node = parent;
+            parent = node.parent;
         }
+        return parent;
+    }
+
+    private Node maximum (Node node) {
+        throwExceptionIfTreeIsEmpty(node);
+        while (node.right != null)
+            node = node.right;
+        return node;
+    }
+
+    private Node minimum (Node node) {
+        throwExceptionIfTreeIsEmpty(node);
+        while (node.left != null)
+            node = node.left;
+        return node;
+    }
+
+    public void delete(int key) {
+
     }
 
     private static int[] arrayOfRandoms(int length) {
@@ -179,7 +231,34 @@ public class BinarySearchTree {
 
     public static void main(String[] args) {
         BinarySearchTree bst = new BinarySearchTree();
-        insertArray(bst, arrayOfRandoms(10000));
-        bst.inorderTreeWalkUsingStack();
+        bst.insert(100);
+
+        bst.insert(50);
+        bst.insert(25);
+        bst.insert(12);
+        bst.insert(18);
+        bst.insert(37);
+        bst.insert(75);
+        bst.insert(62);
+        bst.insert(87);
+
+        bst.insert(200);
+        bst.insert(150);
+        bst.insert(125);
+        bst.insert(175);
+        bst.insert(300);
+        bst.insert(250);
+        bst.insert(400);
+
+        int leftEdge = 12;
+        int rightEdge = 400;
+
+        Node pn1 = bst.getInorderPredecessor(leftEdge);
+        Node pn2 = bst.getInorderPredecessorUsingParent(leftEdge);
+        System.out.println(pn1 == pn2);
+
+        Node sn1 = bst.getInorderSuccessor(rightEdge);
+        Node sn2 = bst.getInorderSuccessorUsingParent(rightEdge);
+        System.out.println(sn1 == sn2);
     }
 }
