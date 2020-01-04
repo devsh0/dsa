@@ -1,7 +1,15 @@
 package com.dsa.data_structures.trees;
 
-import java.util.Random;
+import com.dsa.data_structures.stacks.StackImpl;
 
+import java.util.Random;
+import java.util.Stack;
+
+/**
+ * BinarySearchTree with a nodes having pointer to parent nodes.
+ * The parent nodes is only supposed to be used to implement
+ * certain algorithms. Overusing the parent node might spoil the fun.
+ */
 public class BinarySearchTree {
     private static class Node {
         Node left;
@@ -46,7 +54,7 @@ public class BinarySearchTree {
             throw new RuntimeException("Tree is empty!");
     }
 
-    public void inorderTreeWalk() {
+    public void inorderTreeWalkUsingParent() {
         if (root == null)
             return;
 
@@ -77,6 +85,25 @@ public class BinarySearchTree {
             }
 
             visited = current;
+        }
+    }
+
+    public void inorderTreeWalkUsingStack () {
+        if (root == null)
+            return;
+
+        Node current = root;
+        Stack<Node> nodes = new Stack<>();
+
+        while (current != null || nodes.size() > 0) {
+            while (current != null) {
+                nodes.push(current);
+                current = current.left;
+            }
+
+            current = nodes.pop();
+            System.out.println(current.key);
+            current = current.right;
         }
     }
 
@@ -139,7 +166,7 @@ public class BinarySearchTree {
         Random random = new Random();
 
         for (int i = 0; i < length; i++) {
-            array[i] = random.nextInt(1000);
+            array[i] = random.nextInt(length);
         }
 
         return array;
@@ -153,6 +180,6 @@ public class BinarySearchTree {
     public static void main(String[] args) {
         BinarySearchTree bst = new BinarySearchTree();
         insertArray(bst, arrayOfRandoms(10000));
-        bst.inorderTreeWalk();
+        bst.inorderTreeWalkUsingStack();
     }
 }
