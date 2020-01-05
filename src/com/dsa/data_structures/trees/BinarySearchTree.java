@@ -4,9 +4,9 @@ import java.util.Random;
 import java.util.Stack;
 
 /**
- * BinarySearchTree with a nodes having pointer to parent nodes.
- * The parent nodes is only supposed to be used to implement
- * certain algorithms. Overusing the parent node might spoil the fun.
+ * BinarySearchTree with nodes having pointer to parent nodes.
+ * Parent nodes are only supposed to be used to implement certain
+ * algorithms which specifically require the parent.
  */
 public class BinarySearchTree {
     private static class Node {
@@ -27,6 +27,10 @@ public class BinarySearchTree {
         root = null;
     }
 
+    /**
+     * We traverse the tree as in search until a leaf
+     * node is foud. Then we link the new node to the leaf.
+     */
     public void insert(int key) {
         if (root == null) {
             root = new Node(key, null);
@@ -42,17 +46,24 @@ public class BinarySearchTree {
         }
 
         Node newNode = new Node(key, parent);
+
+        // at this point, parent will be pointing to a leaf node
         if (parent.key > key)
             parent.left = newNode;
         else parent.right = newNode;
     }
 
-    private void throwExceptionIfTreeIsEmpty(Node...node) {
+    private void throwExceptionIfTreeIsEmpty(Node... node) {
         Node examine = node.length == 0 ? root : node[0];
         if (examine == null)
             throw new RuntimeException("Tree is empty!");
     }
 
+    /**
+     * The idea is, if we arrive to a node after being done with
+     * its right subtree, we mark the node as visited. When the
+     * root is marked as visited, we are done walking the tree.
+     */
     public void inorderWalkUsingParentNode() {
         if (root == null)
             return;
@@ -62,7 +73,7 @@ public class BinarySearchTree {
 
         while (root != visited) {
             if (current == visited) {
-                // if current node is at the right hand side of its parent
+                // if current node is at the right subtree of its parent
                 // mark the parent as visited
                 if (current == current.parent.right)
                     visited = current.parent;
@@ -76,6 +87,7 @@ public class BinarySearchTree {
                 continue;
             }
 
+            // done with the left subtree, print the value
             System.out.println(current.key);
 
             if (current.right != visited && current.right != null) {
@@ -83,6 +95,7 @@ public class BinarySearchTree {
                 continue;
             }
 
+            // done with the right subtree, mark as visited
             visited = current;
         }
     }
@@ -114,7 +127,7 @@ public class BinarySearchTree {
         }
     }
 
-    public Node inorderSearch(int key) {
+    public Node search(int key) {
         throwExceptionIfTreeIsEmpty();
         Node current = root;
         while (current != null) {
@@ -122,21 +135,30 @@ public class BinarySearchTree {
                 return current;
             current = current.key > key ? current.left : current.right;
         }
-        throw new RuntimeException("Key does not exist!");
+        return null;
     }
 
-    // We assume that the key exists in the tree
-    public Node getInorderSuccessor (int key) {
+    public Node searchRecursive(Node root, int key) {
+        if (root == null || root.key == key)
+            return root;
+        if (root.key > key)
+            return searchRecursive(root.left, key);
+        return searchRecursive(root.right, key);
+    }
+
+    public Node getInorderSuccessor(int key) {
         throwExceptionIfTreeIsEmpty();
+
         Node current = root;
         Node lastLeft = null;
 
         while (current.key != key) {
+            // We assume that the key exists in the tree
             if (current.key > key) {
                 lastLeft = current;
+                // Save the node from where we turned left the last time
                 current = current.left;
-            }
-            else if (current.key < key)
+            } else if (current.key < key)
                 current = current.right;
         }
 
@@ -146,16 +168,17 @@ public class BinarySearchTree {
         return lastLeft;
     }
 
-    // We assume that the key exists in the tree
-    public Node getInorderPredecessor (int key) {
+    public Node getInorderPredecessor(int key) {
         throwExceptionIfTreeIsEmpty();
         Node current = root;
         Node lastRight = null;
 
         while (current.key != key) {
+            // We assume that the key exists in the tree
             if (current.key > key)
                 current = current.left;
             else if (current.key < key) {
+                // Save the node from where we turned right the last time
                 lastRight = current;
                 current = current.right;
             }
@@ -167,8 +190,20 @@ public class BinarySearchTree {
         return lastRight;
     }
 
+    /**
+     * There are two cases that we should take care of.
+     * <p>
+     * 1. When the key node (N such that N.key = key) has non-
+     * empty left subtree, then the maximum of (N.right) subtree
+     * is the predecessor.
+     * <p>
+     * 2. When the key node (N such that N.key = key) has
+     * empty left subtree, then the predecessor either does not exist
+     * or it's the lowest node X whose right subtree contains the parent
+     * of N or N itself.
+     */
     public Node getInorderPredecessorUsingParent(int key) {
-        Node node = inorderSearch(key);
+        Node node = search(key);
 
         if (node.left != null)
             return maximum(node.left);
@@ -181,8 +216,20 @@ public class BinarySearchTree {
         return parent;
     }
 
-    public Node getInorderSuccessorUsingParent (int key) {
-        Node node = inorderSearch(key);
+    /**
+     * There are two cases that we should take care of.
+     * <p>
+     * 1. When the key node (N such that N.key = key) has
+     * non-empty right subtree, then the minimum of (N.left) subtree
+     * is the successor.
+     * <p>
+     * 2. When the key node (N such that N.key = key) has
+     * empty right subtree, then the successor either does not exist
+     * or it's the lowest node X whose left subtree contains the parent
+     * of N or N itself.
+     */
+    public Node getInorderSuccessorUsingParent(int key) {
+        Node node = search(key);
 
         if (node.right != null)
             return minimum(node.right);
@@ -195,22 +242,151 @@ public class BinarySearchTree {
         return parent;
     }
 
-    private Node maximum (Node node) {
-        throwExceptionIfTreeIsEmpty(node);
-        while (node.right != null)
-            node = node.right;
-        return node;
+    /**
+     * Maximum is the node with highest key in the subtree.
+     */
+    private Node maximum(Node subtree) {
+        throwExceptionIfTreeIsEmpty(subtree);
+        while (subtree.right != null)
+            subtree = subtree.right;
+        return subtree;
     }
 
-    private Node minimum (Node node) {
-        throwExceptionIfTreeIsEmpty(node);
-        while (node.left != null)
-            node = node.left;
-        return node;
+    /**
+     * Minimum is the node with lowest key in the subtree.
+     */
+    private Node minimum(Node subtree) {
+        throwExceptionIfTreeIsEmpty(subtree);
+        while (subtree.left != null)
+            subtree = subtree.left;
+        return subtree;
     }
 
+    public Node minimumRecursive (Node root) {
+        if (root.left == null)
+            return root;
+        return minimumRecursive(root.left);
+    }
+
+    public Node maximumRecursive (Node root) {
+        if (root.right == null)
+            return root;
+        return maximumRecursive(root.right);
+    }
+
+    private Node getParent (int key) {
+        Node current = root;
+        Node parent = null;
+
+        while (current != null && current.key != key) {
+            parent = current;
+            current = current.key > key ? current.left : current.right;
+        }
+
+        if (current == null)
+            throw new RuntimeException("The key does not exist!");
+
+        return parent;
+    }
+
+    // todo: can we clean this up a litlle?
     public void delete(int key) {
+        throwExceptionIfTreeIsEmpty();
 
+        Node parentOfKeyNode = getParent(key);
+        Node keyNode = null;
+        boolean isKeyNodeInLeft = false;
+
+        // obtain the keyNode from its parent
+        if (parentOfKeyNode == null)
+            keyNode = root;
+        else if (parentOfKeyNode.left != null && parentOfKeyNode.left.key == key) {
+            keyNode = parentOfKeyNode.left;
+            isKeyNodeInLeft = true;
+        }
+        else
+            keyNode = parentOfKeyNode.right;
+
+        // CASE 1: keyNode is a leaf node
+        if (keyNode.left == null && keyNode.right == null) {
+            if (parentOfKeyNode == null)
+                // root needs to be deleted
+                root = null;
+            else if (isKeyNodeInLeft)
+                parentOfKeyNode.left = null;
+            else
+                parentOfKeyNode.right = null;
+        }
+
+        // CASE 2a: keyNode has no left children
+        else if (keyNode.left == null) {
+            // keyNode has no left children
+            if (parentOfKeyNode == null)
+                // root needs to be deleted
+                root = keyNode.right;
+            else if (isKeyNodeInLeft)
+                parentOfKeyNode.left = keyNode.right;
+            else
+                parentOfKeyNode.right = keyNode.right;
+        }
+
+        // CASE 2b: keyNode has no right children
+        else if (keyNode.right == null) {
+            // keyNode is a node with no right subtree
+            if (parentOfKeyNode == null)
+                // root needs to be deleted
+                root = keyNode.left;
+            else if (isKeyNodeInLeft)
+                parentOfKeyNode.left = keyNode.left;
+            else
+                parentOfKeyNode.right = keyNode.left;
+        }
+
+        // CASE 3: KeyNode has both, left and right children
+        else {
+            // find successor of keyNode
+            // it's given that keyNode's right child exists
+            Node successorsParent = null;
+            Node successor = keyNode.right;
+            while (successor.left != null) {
+                successorsParent = successor;
+                successor = successor.left;
+            }
+
+            // CASE 3a: successor is direct right children of keyNode
+            if (successorsParent == null) {
+                if (parentOfKeyNode == null) {
+                    // root needs to be deleted
+                    root = successor;
+                } else if (isKeyNodeInLeft)
+                    parentOfKeyNode.left = successor;
+                else
+                    parentOfKeyNode.right = successor;
+            }
+
+            // CASE 3b: successor is somewhere in the right subtree of keyNode
+            else {
+                boolean successorInLeft = successorsParent.left == successor;
+                if (successor.right != null) {
+                    // replace successor with its right children
+                    if (successorInLeft)
+                        // successor is left child of its parent
+                        successorsParent.left = successor.right;
+                    else
+                        // successor is right child of its parent
+                        successorsParent.right = successor.right;
+                } else {
+                    // successor has no right children, just
+                    if (successorInLeft)
+                        successorsParent.left = null;
+                    else
+                        successorsParent.right = null;
+                }
+
+                // lastly, swap keys of keyNode and it's successor
+                keyNode.key = successor.key;
+            }
+        }
     }
 
     private static int[] arrayOfRandoms(int length) {
@@ -240,6 +416,7 @@ public class BinarySearchTree {
         bst.insert(37);
         bst.insert(75);
         bst.insert(62);
+        bst.insert(68);
         bst.insert(87);
 
         bst.insert(200);
@@ -250,15 +427,7 @@ public class BinarySearchTree {
         bst.insert(250);
         bst.insert(400);
 
-        int leftEdge = 12;
-        int rightEdge = 400;
-
-        Node pn1 = bst.getInorderPredecessor(leftEdge);
-        Node pn2 = bst.getInorderPredecessorUsingParent(leftEdge);
-        System.out.println(pn1 == pn2);
-
-        Node sn1 = bst.getInorderSuccessor(rightEdge);
-        Node sn2 = bst.getInorderSuccessorUsingParent(rightEdge);
-        System.out.println(sn1 == sn2);
+        bst.delete(50);
+        System.out.println(bst.root.left.key);
     }
 }
