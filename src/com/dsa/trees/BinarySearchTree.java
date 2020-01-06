@@ -3,19 +3,8 @@ package com.dsa.trees;
 import java.util.Stack;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class BinarySearchTree {
-    private static class Node {
-        Node left;
-        Node right;
-        int key;
-
-        Node(int val) {
-            this.key = val;
-            //this.parent = parent;
-        }
-    }
-
-    private Node root;
+public class BinarySearchTree<T extends Comparable<T>> {
+    private Node<T> root;
 
     public BinarySearchTree() {
         root = null;
@@ -28,21 +17,21 @@ public class BinarySearchTree {
      * right child of the original node. This way they form a linked
      * list down the chain with head pointing to the original node.
      */
-    public void insert(int key) {
+    public void insert(T key) {
         if (root == null) {
-            root = new Node(key);
+            root = new Node<>(key);
             return;
         }
 
-        Node newNode = new Node(key);
-        Node current = root;
-        Node parent = null;
+        Node<T> newNode = new Node<>(key);
+        Node<T> current = root;
+        Node<T> parent = null;
 
         while (current != null) {
             parent = current;
-            if (current.key > key)
+            if (current.keyGT(key))
                 current = current.left;
-            else if (current.key < key)
+            else if (current.keyST(key))
                 current = current.right;
             else {
                 // make sure all the duplicates form a linked list
@@ -54,13 +43,14 @@ public class BinarySearchTree {
         }
 
         // at this point, parent will be pointing to a leaf node
-        if (parent.key > key)
+        if (parent.keyGT(key))
             parent.left = newNode;
         else parent.right = newNode;
     }
 
-    private void throwExceptionIfTreeIsEmpty(Node... node) {
-        Node examine = node.length == 0 ? root : node[0];
+    @SafeVarargs
+    private void throwExceptionIfTreeIsEmpty(Node<T>... node) {
+        Node<T> examine = node.length == 0 ? root : node[0];
         if (examine == null)
             throw new RuntimeException("Tree is empty!");
     }
@@ -73,8 +63,8 @@ public class BinarySearchTree {
         if (root == null)
             return;
 
-        Node current = root;
-        Node visited = null;
+        Node<T> current = root;
+        Node<T> visited = null;
 
         while (root != visited) {
             if (current == visited) {
@@ -109,8 +99,8 @@ public class BinarySearchTree {
         if (root == null)
             return;
 
-        Node current = root;
-        Stack<Node> nodes = new Stack<>();
+        Node<T> current = root;
+        Stack<Node<T>> nodes = new Stack<>();
 
         while (current != null || nodes.size() > 0) {
             while (current != null) {
@@ -124,7 +114,7 @@ public class BinarySearchTree {
         }
     }
 
-    public void inorderWalkRecursive(Node root) {
+    public void inorderWalkRecursive(Node<T> root) {
         if (root != null) {
             inorderWalkRecursive(root.left);
             System.out.println(root.key);
@@ -136,18 +126,18 @@ public class BinarySearchTree {
      * Returns the first node N found in the tree for which
      * N.key == key.
      */
-    public Node search(int key) {
+    public Node<T> search(T key) {
         throwExceptionIfTreeIsEmpty();
-        Node keyNode = root;
-        while (keyNode != null && keyNode.key != key)
-            keyNode = keyNode.key > key ? keyNode.left : keyNode.right;
+        Node<T> keyNode = root;
+        while (keyNode != null && keyNode.keyNotEquals(key))
+            keyNode = keyNode.keyGT(key) ? keyNode.left : keyNode.right;
         return keyNode;
     }
 
-    public Node searchRecursive(Node root, int key) {
-        if (root == null || root.key == key)
+    public Node<T> searchRecursive(Node<T> root, T key) {
+        if (root == null || root.keyEquals(key))
             return root;
-        if (root.key > key)
+        if (root.keyGT(key))
             return searchRecursive(root.left, key);
         return searchRecursive(root.right, key);
     }
@@ -166,15 +156,15 @@ public class BinarySearchTree {
      * of N or N itself.
      * </p>
      */
-    public Node getInorderSuccessor(int key) {
+    public Node<T> getInorderSuccessor(T key) {
         throwExceptionIfTreeIsEmpty();
 
-        Node current = root;
-        Node lastLeft = null;
+        Node<T> current = root;
+        Node<T> lastLeft = null;
 
-        while (current.key != key) {
+        while (current.keyNotEquals(key)) {
             // We assume that the key exists in the tree
-            if (current.key > key) {
+            if (current.keyGT(key)) {
                 lastLeft = current;
                 // Save the node from where we turned left the last time
                 current = current.left;
@@ -202,14 +192,14 @@ public class BinarySearchTree {
      * of N or N itself.
      * </p>
      */
-    public Node getInorderPredecessor(int key) {
+    public Node<T> getInorderPredecessor(T key) {
         throwExceptionIfTreeIsEmpty();
-        Node current = root;
-        Node lastRight = null;
+        Node<T> current = root;
+        Node<T> lastRight = null;
 
-        while (current.key != key) {
+        while (current.keyNotEquals(key)) {
             // We assume that the key exists in the tree
-            if (current.key > key)
+            if (current.keyGT(key))
                 current = current.left;
             else {
                 // Save the node from where we turned right the last time
@@ -224,13 +214,13 @@ public class BinarySearchTree {
         return lastRight;
     }
 
-    /*public Node getInorderSuccessorUsingParent(int key) {
-        Node node = search(key);
+    /*public Node getInorderSuccessorUsingParent(T key) {
+        Node<T> node = search(key);
 
         if (node.right != null)
             return minimum(node.right);
 
-        Node parent = node.parent;
+        Node<T> parent = node.parent;
         while (parent != null && parent.right == node) {
             node = parent;
             parent = node.parent;
@@ -238,13 +228,13 @@ public class BinarySearchTree {
         return parent;
     }
 
-    public Node getInorderPredecessorUsingParent(int key) {
-        Node node = search(key);
+    public Node getInorderPredecessorUsingParent(T key) {
+        Node<T> node = search(key);
 
         if (node.left != null)
             return maximum(node.left);
 
-        Node parent = node.parent;
+        Node<T> parent = node.parent;
         while (parent != null && parent.left == node) {
             node = parent;
             parent = node.parent;
@@ -255,7 +245,7 @@ public class BinarySearchTree {
     /**
      * Maximum is the node with highest key in the tree.
      */
-    private Node maximum(Node subtree) {
+    private Node<T> maximum(Node<T> subtree) {
         throwExceptionIfTreeIsEmpty(subtree);
         while (subtree.right != null)
             subtree = subtree.right;
@@ -265,32 +255,40 @@ public class BinarySearchTree {
     /**
      * Minimum is the node with lowest key in the tree.
      */
-    private Node minimum(Node subtree) {
+    private Node<T> minimum(Node<T> subtree) {
         throwExceptionIfTreeIsEmpty(subtree);
         while (subtree.left != null)
             subtree = subtree.left;
         return subtree;
     }
 
-    public Node minimumRecursive (Node root) {
+    public Node<T> minimumRecursive (Node<T> root) {
         if (root.left == null)
             return root;
         return minimumRecursive(root.left);
     }
 
-    public Node maximumRecursive (Node root) {
+    public Node<T> maximumRecursive (Node<T> root) {
         if (root.right == null)
             return root;
         return maximumRecursive(root.right);
     }
 
-    private Node parentSearchHelper(int key) {
-        Node current = root;
-        Node parent = null;
+    /**
+     * Aids {@code delete} by searching the parent of the first node
+     * N for which N.key == key.
+     *
+     * <p>Returns null if the required node is the root of this tree.
+     * The method is added to save some lines in the already lengthy
+     * {@code delete} procedure.</p>
+     */
+    private Node<T> parentSearchHelper(T key) {
+        Node<T> current = root;
+        Node<T> parent = null;
 
-        while (current != null && current.key != key) {
+        while (current != null && current.keyNotEquals(key)) {
             parent = current;
-            current = current.key > key ? current.left : current.right;
+            current = current.keyGT(key) ? current.left : current.right;
         }
 
         if (current == null)
@@ -308,10 +306,10 @@ public class BinarySearchTree {
      * guarantees if we keep going down the right subtree of N, we will
      * discover all k duplicates of N present in the tree in k steps.</p>
      */
-    private void duplicateDeleteHelper(Node keyNode) {
-        int key = keyNode.key;
-        while (keyNode.right != null && keyNode.right.key == key) {
-            Node duplicate = keyNode.right;
+    private void duplicateDeleteHelper(Node<T> keyNode) {
+        T key = keyNode.key;
+        while (keyNode.right != null && keyNode.right.keyEquals(key)) {
+            Node<T> duplicate = keyNode.right;
             keyNode.right = duplicate.right;
         }
     }
@@ -322,10 +320,10 @@ public class BinarySearchTree {
      * key in this tree. The method is added to save some lines in the
      * already lengthy {@code delete} procedure.
      */
-    private Node keyNodeSearchHelper(Node parent, int key) {
+    private Node<T> keyNodeSearchHelper(Node<T> parent, T key) {
         if (parent == null)
             return root;
-        if (parent.left != null && parent.left.key == key)
+        if (parent.left != null && parent.left.keyEquals(key))
             return parent.left;
         else return parent.right;
     }
@@ -369,14 +367,14 @@ public class BinarySearchTree {
      *     </ol>
      * </p>
      */
-    public void delete(int key) {
+    public void delete(T key) {
         // todo: can we clean this method up a little?
         if (root == null)
             return;
 
         // if root is to be deleted, parent will be null
-        Node parent = parentSearchHelper(key);
-        Node keyNode = keyNodeSearchHelper(parent, key);
+        Node<T> parent = parentSearchHelper(key);
+        Node<T> keyNode = keyNodeSearchHelper(parent, key);
         boolean isKeyNodeRoot = parent == null;
         boolean isKeyNodeInLeft = !isKeyNodeRoot && parent.left == keyNode;
 
@@ -417,10 +415,10 @@ public class BinarySearchTree {
         else {
             // find successor of keyNode
             // NOTE: duplicates are already deleted
-            Node successor = keyNode.right;
+            Node<T> successor = keyNode.right;
 
             // find parent of successor
-            Node successorsParent = null;
+            Node<T> successorsParent = null;
             while (successor.left != null) {
                 successorsParent = successor;
                 successor = successor.left;
@@ -460,7 +458,7 @@ public class BinarySearchTree {
     }
 
     public static void main(String[] args) {
-        BinarySearchTree bst = new BinarySearchTree();
+        BinarySearchTree<Integer> bst = new BinarySearchTree<>();
         bst.insert(100);
 
         bst.insert(50);
@@ -480,7 +478,6 @@ public class BinarySearchTree {
         bst.insert(250);
         bst.insert(400);
 
-        bst.insert(50);
         bst.inorderWalkRecursive(bst.root);
     }
 }
