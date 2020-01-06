@@ -1,4 +1,4 @@
-package com.dsa;
+package com.dsa.utils;
 
 import com.dsa.trees.BinarySearchTree;
 
@@ -17,8 +17,8 @@ public abstract class DsaUtils {
         return array;
     }
 
-    private static void insertArrayToBst(int[] array, BinarySearchTree tree) {
-        for (int value : array)
+    private static <T extends Comparable<T>> void insertArrayToBst(T[] array, BinarySearchTree<T> tree) {
+        for (T value : array)
             tree.insert(value);
     }
 }
