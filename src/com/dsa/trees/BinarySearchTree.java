@@ -12,7 +12,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
 
     /**
      * Inserts a new node in the tree.
-     *
+     * <p>
      * The insertion takes cares of duplicates and links them as the
      * right child of the original node. This way they form a linked
      * list down the chain with head pointing to the original node.
@@ -262,13 +262,13 @@ public class BinarySearchTree<T extends Comparable<T>> {
         return subtree;
     }
 
-    public Node<T> minimumRecursive (Node<T> root) {
+    public Node<T> minimumRecursive(Node<T> root) {
         if (root.left == null)
             return root;
         return minimumRecursive(root.left);
     }
 
-    public Node<T> maximumRecursive (Node<T> root) {
+    public Node<T> maximumRecursive(Node<T> root) {
         if (root.right == null)
             return root;
         return maximumRecursive(root.right);
@@ -300,7 +300,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
     /**
      * Aids {@code delete} by cleaning up duplicates, if there are any.
      *
-     *<p>Because of the way insertion of duplicates is done, if a
+     * <p>Because of the way insertion of duplicates is done, if a
      * node N contains duplicates, they are all present as successive
      * right children of N and they don't have any left pointers. This
      * guarantees if we keep going down the right subtree of N, we will
@@ -368,7 +368,6 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * </p>
      */
     public void delete(T key) {
-        // todo: can we clean this method up a little?
         if (root == null)
             return;
 
@@ -457,10 +456,68 @@ public class BinarySearchTree<T extends Comparable<T>> {
         }
     }
 
+    public Node<T> getPreorderSuccessor(T key) {
+        throwExceptionIfTreeIsEmpty();
+
+        Node<T> keyNode = root;
+        Node<T> possibleSuccessor = null;
+
+        while (keyNode != null && keyNode.keyNotEquals(key)) {
+            if (keyNode.keyGT(key)) {
+                possibleSuccessor = keyNode.right == null ? possibleSuccessor : keyNode.right;
+                keyNode = keyNode.left;
+            } else {
+                keyNode = keyNode.right;
+            }
+        }
+
+        if (keyNode == null)
+            return null;
+        if (keyNode.left != null)
+            return keyNode.left;
+        if (keyNode.right != null)
+            return keyNode.right;
+
+        return possibleSuccessor;
+    }
+
+    public Node<T> getPreorderPredecessor(T key) {
+        throwExceptionIfTreeIsEmpty();
+
+        Node<T> keyNode = root;
+        Node<T> parent = null;
+
+        while (keyNode != null && keyNode.keyNotEquals(key)) {
+            parent = keyNode;
+            keyNode = keyNode.keyGT(key) ? keyNode.left : keyNode.right;
+        }
+
+        if (keyNode == null || parent == null)
+            // either keyNode is not found or it was the root
+            return null;
+
+        if (parent.left == keyNode)
+            // keyNode is left child of its parent
+            return parent;
+
+        if (parent.left != null) {
+            /* keyNode is right child of its parent and parent's left child
+             * exists. In this case, we keep moving right in parent.left. If
+             * the right child does not exist for some node N in the subtree,
+             * we visit N.left. We repeat the procedure until we find a leaf.
+             **/
+            Node<T> next = parent.left;
+            while (next != null) {
+                parent = next;
+                next = next.right != null ? next.right : next.left;
+            }
+        }
+        return parent;
+    }
+
     public static void main(String[] args) {
         BinarySearchTree<Integer> bst = new BinarySearchTree<>();
         bst.insert(100);
-
         bst.insert(50);
         bst.insert(25);
         bst.insert(12);
@@ -476,8 +533,19 @@ public class BinarySearchTree<T extends Comparable<T>> {
         bst.insert(175);
         bst.insert(300);
         bst.insert(250);
+        bst.insert(225);
         bst.insert(400);
+        bst.insert(350);
+        /*bst.insert(20);
+        bst.insert(10);
+        bst.insert(26);
+        bst.insert(4);*/
 
-        bst.inorderWalkRecursive(bst.root);
+        Node<Integer> first = bst.search(350);
+        while (first != null) {
+            System.out.println(first.key);
+            first = bst.getPreorderPredecessor(first.key);
+        }
+        //System.out.println(bst.getPreorderPredecessor(26).key);
     }
 }
