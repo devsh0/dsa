@@ -1,4 +1,4 @@
-package com.dsa.data_structures.stacks;
+package com.dsa.stacks;
 
 public interface Stack<T> {
     T pop();

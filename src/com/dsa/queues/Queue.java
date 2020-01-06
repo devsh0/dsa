@@ -1,4 +1,4 @@
-package com.dsa.data_structures.queues;
+package com.dsa.queues;
 
 public interface Queue<T> {
     int size();

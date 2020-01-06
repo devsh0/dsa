@@ -1,4 +1,4 @@
-package com.dsa.data_structures.dynamic_lists;
+package com.dsa.dynamic_lists;
 
 public interface DynamicList<T> {
     T get(int index) throws IndexOutOfBoundsException;

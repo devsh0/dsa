@@ -1,4 +1,4 @@
-package com.dsa.data_structures.dynamic_lists;
+package com.dsa.dynamic_lists;
 
 @SuppressWarnings("unchecked")
 public class DynamicArray<T> implements DynamicList<T> {

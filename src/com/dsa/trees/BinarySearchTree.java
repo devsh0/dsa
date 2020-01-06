@@ -1,7 +1,8 @@
-package com.dsa.data_structures.trees;
+package com.dsa.trees;
 
 import java.util.Stack;
 
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class BinarySearchTree {
     private static class Node {
         Node left;
@@ -21,11 +22,11 @@ public class BinarySearchTree {
     }
 
     /**
-     * We traverse the tree as in search until a leaf
-     * node is foud. Then we link the new node to the leaf.
+     * Inserts a new node in the tree.
      *
-     * Note: Duplicates are allowed and inserted as right child
-     * of the original node.
+     * The insertion takes cares of duplicates and links them as the
+     * right child of the original node. This way they form a linked
+     * list down the chain with head pointing to the original node.
      */
     public void insert(int key) {
         if (root == null) {
@@ -44,8 +45,8 @@ public class BinarySearchTree {
             else if (current.key < key)
                 current = current.right;
             else {
-                // make sure all the equal keyNodes form a tree
-                // where nodes other the root don't have left child
+                // make sure all the duplicates form a linked list
+                // where the head points to the original node.
                 newNode.right = current.right;
                 current.right = newNode;
                 return;
@@ -68,7 +69,6 @@ public class BinarySearchTree {
      * The idea is, if we arrive to a node after being done with
      * its right subtree, we mark the node as visited. When the
      * root is marked as visited, we are done walking the tree.
-
     public void inorderWalkUsingParentNode() {
         if (root == null)
             return;
@@ -132,6 +132,10 @@ public class BinarySearchTree {
         }
     }
 
+    /**
+     * Returns the first node N found in the tree for which
+     * N.key == key.
+     */
     public Node search(int key) {
         throwExceptionIfTreeIsEmpty();
         Node keyNode = root;
@@ -151,8 +155,8 @@ public class BinarySearchTree {
     /**
      * There are two cases that we should take care of.
      * <p>
-     * 1. When the key node (N such that N.key = key) has
-     * non-empty right subtree, then the minimum of (N.left) subtree
+     * 1. When the keyNode (N such that N.key = key) has non-
+     * empty right subtree, then the minimum of N.left subtree
      * is the successor.
      * </p>
      * <p>
@@ -174,7 +178,7 @@ public class BinarySearchTree {
                 lastLeft = current;
                 // Save the node from where we turned left the last time
                 current = current.left;
-            } else if (current.key < key)
+            } else
                 current = current.right;
         }
 
@@ -188,7 +192,7 @@ public class BinarySearchTree {
      * There are two cases that we should take care of.
      * <p>
      * 1. When the key node (N such that N.key = key) has non-
-     * empty left subtree, then the maximum of (N.right) subtree
+     * empty left subtree, then the maximum of N.right subtree
      * is the predecessor.
      * </p>
      * <p>
@@ -207,7 +211,7 @@ public class BinarySearchTree {
             // We assume that the key exists in the tree
             if (current.key > key)
                 current = current.left;
-            else if (current.key < key) {
+            else {
                 // Save the node from where we turned right the last time
                 lastRight = current;
                 current = current.right;
@@ -249,7 +253,7 @@ public class BinarySearchTree {
     }*/
 
     /**
-     * Maximum is the node with highest key in the subtree.
+     * Maximum is the node with highest key in the tree.
      */
     private Node maximum(Node subtree) {
         throwExceptionIfTreeIsEmpty(subtree);
@@ -259,7 +263,7 @@ public class BinarySearchTree {
     }
 
     /**
-     * Minimum is the node with lowest key in the subtree.
+     * Minimum is the node with lowest key in the tree.
      */
     private Node minimum(Node subtree) {
         throwExceptionIfTreeIsEmpty(subtree);
@@ -280,7 +284,7 @@ public class BinarySearchTree {
         return maximumRecursive(root.right);
     }
 
-    private Node parentHelper(int key) {
+    private Node parentSearchHelper(int key) {
         Node current = root;
         Node parent = null;
 
@@ -295,7 +299,16 @@ public class BinarySearchTree {
         return parent;
     }
 
-    public void deleteDuplicatesIfPresent(Node keyNode) {
+    /**
+     * Aids {@code delete} by cleaning up duplicates, if there are any.
+     *
+     *<p>Because of the way insertion of duplicates is done, if a
+     * node N contains duplicates, they are all present as successive
+     * right children of N and they don't have any left pointers. This
+     * guarantees if we keep going down the right subtree of N, we will
+     * discover all k duplicates of N present in the tree in k steps.</p>
+     */
+    private void duplicateDeleteHelper(Node keyNode) {
         int key = keyNode.key;
         while (keyNode.right != null && keyNode.right.key == key) {
             Node duplicate = keyNode.right;
@@ -303,7 +316,13 @@ public class BinarySearchTree {
         }
     }
 
-    private Node keyNodeHelper(Node parent, int key) {
+    /**
+     * Given a key and its parent (which may be null, e.g.: in the case
+     * when keyNode is root), finds and returns the node containing the
+     * key in this tree. The method is added to save some lines in the
+     * already lengthy {@code delete} procedure.
+     */
+    private Node keyNodeSearchHelper(Node parent, int key) {
         if (parent == null)
             return root;
         if (parent.left != null && parent.left.key == key)
@@ -311,19 +330,58 @@ public class BinarySearchTree {
         else return parent.right;
     }
 
-    // todo: can we clean this up a litlle?
-    public void delete(int key, Node...beginFrom) {
+    /**
+     * Deletes nodes with the given key along with its duplicates.
+     *
+     * <p>We need to handle three cases.
+     *  <ol>
+     *   <li>
+     *    <p>When the node to be deleted is a leaf node:</p>
+     *    <p>In this case, all we do is unlink the leaf node from
+     *       its parent.</p>
+     *   </li>
+     *   <li>
+     *    <p>When the node to be deleted has only one child:</p>
+     *    <p>In this case, we need to replace the node with it's left
+     *       or right child.</p>
+     *   </li>
+     *   <li>
+     *    <p>When the node to be deleted has both, left and right children:</p>
+     *    <p>In this case, we replace the node with its successor. In the
+     *       process of doing so, we will have to take care of two cases.</p>
+     *    <ol>
+     *     <li>
+     *      <p>Successor is the direct right child of node:</p>
+     *      <p>In this case, all we do is replace the node with successor,
+     *         leaving the successor's right child alone. Note that the
+     *         successor won't have any left child because it is the smallest
+     *         element in node's right subtree.</p>
+     *     </li>
+     *     <li>
+     *       <p>Successor is not the direct right child of node:</p>
+     *       <p>In this case, we first have to replace the successor with its
+     *          right child, meaning, we take the right child of successor and
+     *          attach it to the successor's parent as its left child. Then we,
+     *          replace the node with successor.</p>
+     *     </li>
+     *    </ol>
+     *   </li>
+     *     </ol>
+     * </p>
+     */
+    public void delete(int key) {
+        // todo: can we clean this method up a little?
         if (root == null)
             return;
 
         // if root is to be deleted, parent will be null
-        Node parent = parentHelper(key);
-        Node keyNode = keyNodeHelper(parent, key);
+        Node parent = parentSearchHelper(key);
+        Node keyNode = keyNodeSearchHelper(parent, key);
         boolean isKeyNodeRoot = parent == null;
         boolean isKeyNodeInLeft = !isKeyNodeRoot && parent.left == keyNode;
 
         // start by getting rid of the duplicates, if any
-        deleteDuplicatesIfPresent(keyNode);
+        duplicateDeleteHelper(keyNode);
 
         // CASE 1: keyNode is a leaf node
         if (keyNode.left == null && keyNode.right == null) {
@@ -361,7 +419,7 @@ public class BinarySearchTree {
             // NOTE: duplicates are already deleted
             Node successor = keyNode.right;
 
-            // find parent of succesor
+            // find parent of successor
             Node successorsParent = null;
             while (successor.left != null) {
                 successorsParent = successor;
@@ -400,22 +458,6 @@ public class BinarySearchTree {
             }
         }
     }
-
-    /*private static int[] arrayOfRandoms(int length) {
-        int[] array = new int[length];
-        Random random = new Random();
-
-        for (int i = 0; i < length; i++) {
-            array[i] = random.nextInt(length);
-        }
-
-        return array;
-    }
-
-    private static void insertArray(BinarySearchTree tree, int[] array) {
-        for (int value : array)
-            tree.insert(value);
-    }*/
 
     public static void main(String[] args) {
         BinarySearchTree bst = new BinarySearchTree();

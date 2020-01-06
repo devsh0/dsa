@@ -1,4 +1,4 @@
-package com.dsa.data_structures.stacks;
+package com.dsa.stacks;
 
 @SuppressWarnings("unchecked")
 public class StackImpl<T> implements Stack<T> {

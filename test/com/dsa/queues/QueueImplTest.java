@@ -1,4 +1,4 @@
-package com.dsa.data_structures.queues;
+package com.dsa.queues;
 
 import org.junit.Test;
 
