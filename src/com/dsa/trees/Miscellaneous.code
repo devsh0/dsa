@@ -1,0 +1,70 @@
+/**
+ * Does an inorder walk using the parent node.
+ * <br>
+ * <p>Idea is, if we arrive to a node after being done with
+ * its right subtree, we mark the node visited. When the
+ * root is marked visited, we are done walking the tree.</p>
+ */
+public void inorderWalkUsingParentNode() {
+    if (root == null)
+        return;
+
+    Node<T> current = root;
+    Node<T> visited = null;
+
+    while (root != visited) {
+        if (current == visited) {
+            // if current node is at the right subtree of its parent
+            // mark the parent as visited
+            if (current == current.parent.right)
+                visited = current.parent;
+
+            current = current.parent;
+            continue;
+        }
+
+        if (current.left != visited && current.left != null) {
+            current = current.left;
+            continue;
+        }
+
+        // done with the left subtree, print the value
+        System.out.println(current.key);
+
+        if (current.right != visited && current.right != null) {
+            current = current.right;
+            continue;
+        }
+
+        // done with the right subtree, mark as visited
+        visited = current;
+    }
+}
+
+public Node getInorderSuccessorUsingParent(T key) {
+    Node<T> node = search(key);
+
+    if (node.right != null)
+        return minimum(node.right);
+
+    Node<T> parent = node.parent;
+    while (parent != null && parent.right == node) {
+        node = parent;
+        parent = node.parent;
+    }
+    return parent;
+}
+
+public Node getInorderPredecessorUsingParent(T key) {
+    Node<T> node = search(key);
+
+    if (node.left != null)
+        return maximum(node.left);
+
+    Node<T> parent = node.parent;
+    while (parent != null && parent.left == node) {
+        node = parent;
+        parent = node.parent;
+    }
+    return parent;
+}
