@@ -49,6 +49,5 @@ class Node<T extends Comparable<T>> {
 
     Node(T val) {
         this.key = val;
-        //this.parent = parent;
     }
 }

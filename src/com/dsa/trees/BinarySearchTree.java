@@ -55,46 +55,6 @@ public class BinarySearchTree<T extends Comparable<T>> {
             throw new RuntimeException("Tree is empty!");
     }
 
-    /*
-     * The idea is, if we arrive to a node after being done with
-     * its right subtree, we mark the node as visited. When the
-     * root is marked as visited, we are done walking the tree.
-    public void inorderWalkUsingParentNode() {
-        if (root == null)
-            return;
-
-        Node<T> current = root;
-        Node<T> visited = null;
-
-        while (root != visited) {
-            if (current == visited) {
-                // if current node is at the right subtree of its parent
-                // mark the parent as visited
-                if (current == current.parent.right)
-                    visited = current.parent;
-
-                current = current.parent;
-                continue;
-            }
-
-            if (current.left != visited && current.left != null) {
-                current = current.left;
-                continue;
-            }
-
-            // done with the left subtree, print the value
-            System.out.println(current.key);
-
-            if (current.right != visited && current.right != null) {
-                current = current.right;
-                continue;
-            }
-
-            // done with the right subtree, mark as visited
-            visited = current;
-        }
-    }*/
-
     public void inorderWalkUsingStack() {
         if (root == null)
             return;
@@ -213,34 +173,6 @@ public class BinarySearchTree<T extends Comparable<T>> {
 
         return lastRight;
     }
-
-    /*public Node getInorderSuccessorUsingParent(T key) {
-        Node<T> node = search(key);
-
-        if (node.right != null)
-            return minimum(node.right);
-
-        Node<T> parent = node.parent;
-        while (parent != null && parent.right == node) {
-            node = parent;
-            parent = node.parent;
-        }
-        return parent;
-    }
-
-    public Node getInorderPredecessorUsingParent(T key) {
-        Node<T> node = search(key);
-
-        if (node.left != null)
-            return maximum(node.left);
-
-        Node<T> parent = node.parent;
-        while (parent != null && parent.left == node) {
-            node = parent;
-            parent = node.parent;
-        }
-        return parent;
-    }*/
 
     /**
      * Maximum is the node with highest key in the tree.
@@ -456,15 +388,34 @@ public class BinarySearchTree<T extends Comparable<T>> {
         }
     }
 
+    /**
+     * Returns the preorder successor of the given key, if exists.
+     * <br>
+     * <p>In preorder walk, root is printed first, followed by
+     * its left child and then the right child.
+     * <br><br>
+     * Cases:<br>
+     *  1. KeyNode has children:<br>
+     *      keyNode is checked for having left or a right child
+     *      in that order and whichever is found, returned as the
+     *      successor.
+     *  <br>
+     *  2. KeyNode is a leaf:<br>
+     *      Walk up the tree until a node N is found which has
+     *      both left and right child and whose LEFT child is
+     *      a parent of keyNode. If such N exists, return its
+     *      right child.
+     * </p>
+     */
     public Node<T> getPreorderSuccessor(T key) {
         throwExceptionIfTreeIsEmpty();
 
         Node<T> keyNode = root;
-        Node<T> possibleSuccessor = null;
+        Node<T> possibleSucc = null;
 
         while (keyNode != null && keyNode.keyNotEquals(key)) {
             if (keyNode.keyGT(key)) {
-                possibleSuccessor = keyNode.right == null ? possibleSuccessor : keyNode.right;
+                possibleSucc = keyNode.right != null ? keyNode.right : possibleSucc;
                 keyNode = keyNode.left;
             } else {
                 keyNode = keyNode.right;
@@ -478,9 +429,30 @@ public class BinarySearchTree<T extends Comparable<T>> {
         if (keyNode.right != null)
             return keyNode.right;
 
-        return possibleSuccessor;
+        return possibleSucc;
     }
 
+    /**
+     * Returns the preorder predecessor of the given key, if exists.
+     * <br>
+     * <p>In preorder walk, root is printed first, followed by
+     * its left child and then the right child.
+     * <br><br>
+     * Cases:<br>
+     *  1. KeyNode is left child of its parent:<br>
+     *      In this case, the parent of keyNode is returned as the
+     *      predecessor.
+     *  <br>
+     *  2. KeyNode is right child of its parent. Two cases arise:<br>
+     *      2a. Parent has no left child:<br>
+     *          In this case, parent is returned as the predecessor.<br>
+     *      2b. Parent has a left child:<br>
+     *          Walk down parent.left and find a node N which is the
+     *          deepest right child in the subtree. If N does not exist,
+     *          i.e.: there are no right child in the subtree, return
+     *          minimum(parent.left). If N exists, return minimum(N)
+     * </p>
+     */
     public Node<T> getPreorderPredecessor(T key) {
         throwExceptionIfTreeIsEmpty();
 
@@ -515,6 +487,120 @@ public class BinarySearchTree<T extends Comparable<T>> {
         return parent;
     }
 
+    /**
+     * Preorder walk. Root -> Left -> Right
+     */
+    public void preorderWalk(Node<T> root) {
+        if (root != null) {
+            System.out.println(root.key);
+            preorderWalk(root.left);
+            preorderWalk(root.right);
+        }
+    }
+
+    /**
+     * Returns the postorder successor of the given key, if exists.
+     * <br>
+     * <p>In postorder walk, root is printed last, after its left
+     *  and right child.
+     * <br><br>
+     * Cases:<br>
+     *  1. KeyNode is right child of its parent:<br>
+     *      In this case, successor would be the parent.
+     *  <br>
+     *  2. KeyNode is left child of its parent:<br>
+     *      If parent.right doesn't exist, successor would be the parent.
+     *      If parent.right exists, walk down parent.right and find node N
+     *      which is the deepest left child in subtree. If such N does not
+     *      exist, i.e.: there are no left child in the subtree, return
+     *      maximum(parent.right). If N exists, return maximum(N).
+     * </p>
+     */
+    public Node<T> getPostorderSuccessor(T key) {
+        throwExceptionIfTreeIsEmpty();
+        Node<T> keyNode = root;
+        Node<T> parent = null;
+
+        while (keyNode != null && keyNode.keyNotEquals(key)) {
+            parent = keyNode;
+            keyNode = keyNode.keyGT(key) ? keyNode.left : keyNode.right;
+        }
+
+        if (keyNode == null || parent == null)
+            return null;
+
+        if (parent.right == keyNode)
+            return parent;
+
+        if (parent.right != null) {
+            Node<T> current = parent.right;
+            while (current != null) {
+                parent = current;
+                current = current.left != null ? current.left : current.right;
+            }
+        }
+
+        return parent;
+    }
+
+    /**
+     * Returns the postorder predecessor of the given key, if exists.
+     * <br>
+     * <p>In postorder walk, root is printed last, after its left
+     *  and right child.
+     * <br><br>
+     * Cases:<br>
+     *  1. KeyNode has children:<br>
+     *      In this case, keyNode is checked to have left or right
+     *      child in that order, if either of it exists, its returned
+     *      as the predecessor.
+     *  <br>
+     *  2. KeyNode is a leaf:<br>
+     *      Walk up the tree and find a node N which has both left and
+     *      right child and whose right child is also a parent of keyNode.
+     *      If N exists, return N.left.
+     * </p>
+     */
+    public Node<T> getPostorderPredecessor(T key) {
+        throwExceptionIfTreeIsEmpty();
+        Node<T> keyNode = root;
+        Node<T> parent = null;
+        Node<T> possiblePred = null;
+
+        while (keyNode != null && keyNode.keyNotEquals(key)) {
+            parent = keyNode;
+            if (keyNode.keyGT(key))
+                keyNode = keyNode.left;
+            else {
+                possiblePred = keyNode.left != null ? keyNode.left : possiblePred;
+                keyNode = keyNode.right;
+            }
+        }
+
+        if (keyNode == null)
+            return null;
+
+        if (keyNode.right != null)
+            return keyNode.right;
+
+        if (keyNode.left != null)
+            return keyNode.left;
+
+        if (parent == null)
+            // only one node in the tree
+            return null;
+
+        return possiblePred;
+    }
+
+    public void postorderWalk (Node<T> root) {
+        if (root != null) {
+            postorderWalk(root.left);
+            postorderWalk(root.right);
+            System.out.println(root.key);
+        }
+    }
+
     public static void main(String[] args) {
         BinarySearchTree<Integer> bst = new BinarySearchTree<>();
         bst.insert(100);
@@ -536,16 +622,11 @@ public class BinarySearchTree<T extends Comparable<T>> {
         bst.insert(225);
         bst.insert(400);
         bst.insert(350);
-        /*bst.insert(20);
-        bst.insert(10);
-        bst.insert(26);
-        bst.insert(4);*/
 
-        Node<Integer> first = bst.search(350);
+        Node<Integer> first = bst.search(100);
         while (first != null) {
             System.out.println(first.key);
-            first = bst.getPreorderPredecessor(first.key);
+            first = bst.getPostorderPredecessor(first.key);
         }
-        //System.out.println(bst.getPreorderPredecessor(26).key);
     }
 }
