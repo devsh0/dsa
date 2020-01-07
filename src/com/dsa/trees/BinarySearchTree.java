@@ -106,14 +106,14 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * There are two cases that we should take care of.
      * <p>
      * 1. When the keyNode (N such that N.key = key) has non-
-     * empty right subtree, then the minimum of N.left subtree
+     * empty right subtree, then the minimum of N.right subtree
      * is the successor.
      * </p>
      * <p>
-     * 2. When the key node (N such that N.key = key) has
-     * empty right subtree, then the successor either does not exist
-     * or it's the lowest node X whose left subtree contains the parent
-     * of N or N itself.
+     * 2. When the key node (N such that N.key = key) has empty
+     * right subtree, then the successor either does not exist
+     * or it's the lowest ancestor X whose left subtree contains the
+     * parent of N or N itself.
      * </p>
      */
     public Node<T> getInorderSuccessor(T key) {
@@ -142,7 +142,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * There are two cases that we should take care of.
      * <p>
      * 1. When the key node (N such that N.key = key) has non-
-     * empty left subtree, then the maximum of N.right subtree
+     * empty left subtree, then the maximum of N.left subtree
      * is the predecessor.
      * </p>
      * <p>
