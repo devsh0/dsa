@@ -2,23 +2,33 @@ package com.dsa.utils;
 
 import com.dsa.trees.BinarySearchTree;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @SuppressWarnings("unused")
 public abstract class DsaUtils {
-    private static int[] getRandomInts(int n, int upperBound) {
-        int[] array = new int[n];
+    public static List<Integer> getUniqueRandomInts(int n, int upperBound) {
+        List<Integer> ints = new ArrayList<>();
         Random random = new Random();
 
-        for (int i = 0; i < n; i++) {
-            array[i] = random.nextInt(upperBound);
+        while(ints.size() < n) {
+            int r = random.nextInt(upperBound);
+            if (!ints.contains(r))
+                ints.add(r);
         }
 
-        return array;
+        return ints;
     }
 
-    private static <T extends Comparable<T>> void insertArrayToBst(T[] array, BinarySearchTree<T> tree) {
+    public static <T extends Comparable<T>> void insertArrayToBst(T[] array, BinarySearchTree<T> tree) {
         for (T value : array)
             tree.insert(value);
+    }
+
+    public static int getRandomInt (int min, int max) {
+        return ThreadLocalRandom.current().nextInt(min, max);
     }
 }
