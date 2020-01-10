@@ -1,6 +1,7 @@
 package com.dsa.trees;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Stack;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
@@ -240,7 +241,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
         }
 
         if (current == null)
-            throw new RuntimeException("The key does not exist!");
+            throw new NoSuchElementException("The key does not exist!");
 
         return parent;
     }
@@ -255,12 +256,12 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * discover all k duplicates of N present in the tree in k steps.</p>
      */
     private void duplicateDeleteHelper(Node<T> keyNode) {
-        T key = keyNode.key;
-        while (keyNode.right != null && keyNode.right.keyEquals(key)) {
-            Node<T> duplicate = keyNode.right;
-            keyNode.right = duplicate.right;
+        Node<T> temp = keyNode.right;
+        while (temp != null && temp.keyEquals(keyNode.key)) {
+            temp = temp.right;
             size--;
         }
+        keyNode.right = temp;
     }
 
     /**
@@ -320,11 +321,15 @@ public class BinarySearchTree<T extends Comparable<T>> {
         if (root == null)
             return;
 
-        // if root is to be deleted, parent will be null
-        Node<T> parent = parentSearchHelper(key);
-        Node<T> keyNode = keyNodeSearchHelper(parent, key);
-        boolean isKeyNodeRoot = parent == null;
-        boolean isKeyNodeInLeft = !isKeyNodeRoot && parent.left == keyNode;
+        Node<T> parent;
+        Node<T> keyNode;
+        try {
+            // if root has to be deleted, parent will be null
+            parent = parentSearchHelper(key);
+            keyNode = keyNodeSearchHelper(parent, key);
+        } catch (NoSuchElementException exc) {
+            return;
+        }
 
         // start by getting rid of the duplicates, if any
         duplicateDeleteHelper(keyNode);
@@ -332,78 +337,43 @@ public class BinarySearchTree<T extends Comparable<T>> {
 
         // CASE 1: keyNode is a leaf node
         if (keyNode.left == null && keyNode.right == null) {
-            if (isKeyNodeRoot)
+            if (parent == null)
                 root = null;
-            else if (isKeyNodeInLeft)
+            else if (parent.left == keyNode)
                 parent.left = null;
             else
                 parent.right = null;
         }
 
-        // CASE 2a: keyNode has no left child
-        else if (keyNode.left == null) {
-            if (isKeyNodeRoot)
-                root = keyNode.right;
-            else if (isKeyNodeInLeft)
-                parent.left = keyNode.right;
-            else
-                parent.right = keyNode.right;
-        }
-
-        // CASE 2b: keyNode has no right child
-        else if (keyNode.right == null) {
-            if (isKeyNodeRoot)
-                root = keyNode.left;
-            else if (isKeyNodeInLeft)
-                parent.left = keyNode.left;
-            else
-                parent.right = keyNode.left;
+        // CASE 2: keyNode has only one child
+        else if (keyNode.left == null || keyNode.right == null) {
+            var child = keyNode.left == null ? keyNode.right : keyNode.left;
+            keyNode.key = child.key;
+            keyNode.left = child.left;
+            keyNode.right = child.right;
         }
 
         // CASE 3: KeyNode has both, left and right children
         else {
-            // find successor of keyNode
             // NOTE: duplicates are already deleted
+            // find successor and its parent
             Node<T> successor = keyNode.right;
-
-            // find parent of successor
             Node<T> parentSucc = null;
             while (successor.left != null) {
                 parentSucc = successor;
                 successor = successor.left;
             }
 
+            // set keyNode's key equal to successor's key
+            keyNode.key = successor.key;
+
             // CASE 3a: successor is direct right child of keyNode
-            if (parentSucc == null) {
-                if (isKeyNodeRoot)
-                    root = successor;
-                else if (isKeyNodeInLeft)
-                    parent.left = successor;
-                else
-                    parent.right = successor;
-                successor.left = keyNode.left;
-            }
+            if (parentSucc == null)
+                keyNode.right = successor.right;
 
             // CASE 3b: successor is somewhere in the right subtree of keyNode
-            else {
-                boolean successorInLeft = parentSucc.left == successor;
-                if (successor.right != null) {
-                    // replace successor with its right children
-                    if (successorInLeft)
-                        parentSucc.left = successor.right;
-                    else
-                        parentSucc.right = successor.right;
-                } else {
-                    // successor has no right children
-                    if (successorInLeft)
-                        parentSucc.left = null;
-                    else
-                        parentSucc.right = null;
-                }
-
-                // lastly, replace keyNode with its successor
-                keyNode.key = successor.key;
-            }
+            else
+                parentSucc.left = successor.right;
         }
     }
 
