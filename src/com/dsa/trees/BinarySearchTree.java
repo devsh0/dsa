@@ -1,10 +1,12 @@
 package com.dsa.trees;
 
+import java.util.List;
 import java.util.Stack;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class BinarySearchTree<T extends Comparable<T>> {
-    private Node<T> root;
+    Node<T> root;
+    private int size;
 
     public BinarySearchTree() {
         root = null;
@@ -18,6 +20,8 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * list down the chain with head pointing to the original node.
      */
     public void insert(T key) {
+        size++;
+
         if (root == null) {
             root = new Node<>(key);
             return;
@@ -49,13 +53,19 @@ public class BinarySearchTree<T extends Comparable<T>> {
     }
 
     @SafeVarargs
+    public final void insertAll(T... keys) {
+        for (T key:keys)
+            insert(key);
+    }
+
+    @SafeVarargs
     private void throwExceptionIfTreeIsEmpty(Node<T>... node) {
         Node<T> examine = node.length == 0 ? root : node[0];
         if (examine == null)
             throw new RuntimeException("Tree is empty!");
     }
 
-    public void inorderWalkUsingStack() {
+    void inorderWalkUsingStack() {
         if (root == null)
             return;
 
@@ -69,16 +79,18 @@ public class BinarySearchTree<T extends Comparable<T>> {
             }
 
             current = nodes.pop();
-            System.out.println(current.key);
+            System.out.print(current.key + ", ");
             current = current.right;
         }
+
+        System.out.println();
     }
 
-    public void inorderWalkRecursive(Node<T> root) {
+    public void inorderCollect(Node<T> root, List<T> nodes) {
         if (root != null) {
-            inorderWalkRecursive(root.left);
-            System.out.println(root.key);
-            inorderWalkRecursive(root.right);
+            inorderCollect(root.left, nodes);
+            nodes.add(root.key);
+            inorderCollect(root.right, nodes);
         }
     }
 
@@ -177,7 +189,9 @@ public class BinarySearchTree<T extends Comparable<T>> {
     /**
      * Maximum is the node with highest key in the tree.
      */
-    private Node<T> maximum(Node<T> subtree) {
+    @SafeVarargs
+    final public Node<T> maximum(Node<T>... aSubtree) {
+        Node<T> subtree = aSubtree.length == 0 ? root : aSubtree[0];
         throwExceptionIfTreeIsEmpty(subtree);
         while (subtree.right != null)
             subtree = subtree.right;
@@ -187,20 +201,22 @@ public class BinarySearchTree<T extends Comparable<T>> {
     /**
      * Minimum is the node with lowest key in the tree.
      */
-    private Node<T> minimum(Node<T> subtree) {
+    @SafeVarargs
+    final public Node<T> minimum(Node<T>... aSubtree) {
+        Node<T> subtree = aSubtree.length == 0 ? root : aSubtree[0];
         throwExceptionIfTreeIsEmpty(subtree);
         while (subtree.left != null)
             subtree = subtree.left;
         return subtree;
     }
 
-    public Node<T> minimumRecursive(Node<T> root) {
+    private Node<T> minimumRecursive(Node<T> root) {
         if (root.left == null)
             return root;
         return minimumRecursive(root.left);
     }
 
-    public Node<T> maximumRecursive(Node<T> root) {
+    private Node<T> maximumRecursive(Node<T> root) {
         if (root.right == null)
             return root;
         return maximumRecursive(root.right);
@@ -243,6 +259,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
         while (keyNode.right != null && keyNode.right.keyEquals(key)) {
             Node<T> duplicate = keyNode.right;
             keyNode.right = duplicate.right;
+            size--;
         }
     }
 
@@ -257,7 +274,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
             return root;
         if (parent.left != null && parent.left.keyEquals(key))
             return parent.left;
-        else return parent.right;
+        return parent.right;
     }
 
     /**
@@ -311,6 +328,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
 
         // start by getting rid of the duplicates, if any
         duplicateDeleteHelper(keyNode);
+        size -= 1;
 
         // CASE 1: keyNode is a leaf node
         if (keyNode.left == null && keyNode.right == null) {
@@ -349,40 +367,41 @@ public class BinarySearchTree<T extends Comparable<T>> {
             Node<T> successor = keyNode.right;
 
             // find parent of successor
-            Node<T> successorsParent = null;
+            Node<T> parentSucc = null;
             while (successor.left != null) {
-                successorsParent = successor;
+                parentSucc = successor;
                 successor = successor.left;
             }
 
             // CASE 3a: successor is direct right child of keyNode
-            if (successorsParent == null) {
+            if (parentSucc == null) {
                 if (isKeyNodeRoot)
                     root = successor;
                 else if (isKeyNodeInLeft)
                     parent.left = successor;
                 else
                     parent.right = successor;
+                successor.left = keyNode.left;
             }
 
             // CASE 3b: successor is somewhere in the right subtree of keyNode
             else {
-                boolean successorInLeft = successorsParent.left == successor;
+                boolean successorInLeft = parentSucc.left == successor;
                 if (successor.right != null) {
                     // replace successor with its right children
                     if (successorInLeft)
-                        successorsParent.left = successor.right;
+                        parentSucc.left = successor.right;
                     else
-                        successorsParent.right = successor.right;
+                        parentSucc.right = successor.right;
                 } else {
                     // successor has no right children
                     if (successorInLeft)
-                        successorsParent.left = null;
+                        parentSucc.left = null;
                     else
-                        successorsParent.right = null;
+                        parentSucc.right = null;
                 }
 
-                // lastly, swap keys of keyNode and it's successor
+                // lastly, replace keyNode with its successor
                 keyNode.key = successor.key;
             }
         }
@@ -395,16 +414,16 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * its left child and then the right child.
      * <br><br>
      * Cases:<br>
-     *  1. KeyNode has children:<br>
-     *      keyNode is checked for having left or a right child
-     *      in that order and whichever is found, returned as the
-     *      successor.
-     *  <br>
-     *  2. KeyNode is a leaf:<br>
-     *      Walk up the tree until a node N is found which has
-     *      both left and right child and whose LEFT child is
-     *      a parent of keyNode. If such N exists, return its
-     *      right child.
+     * 1. KeyNode has children:<br>
+     * keyNode is checked for having left or a right child
+     * in that order and whichever is found, returned as the
+     * successor.
+     * <br>
+     * 2. KeyNode is a leaf:<br>
+     * Walk up the tree until a node N is found which has
+     * both left and right child and whose LEFT child is
+     * a parent of keyNode. If such N exists, return its
+     * right child.
      * </p>
      */
     public Node<T> getPreorderSuccessor(T key) {
@@ -439,18 +458,18 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * its left child and then the right child.
      * <br><br>
      * Cases:<br>
-     *  1. KeyNode is left child of its parent:<br>
-     *      In this case, the parent of keyNode is returned as the
-     *      predecessor.
-     *  <br>
-     *  2. KeyNode is right child of its parent. Two cases arise:<br>
-     *      2a. Parent has no left child:<br>
-     *          In this case, parent is returned as the predecessor.<br>
-     *      2b. Parent has a left child:<br>
-     *          Walk down parent.left and find a node N which is the
-     *          deepest right child in the subtree. If N does not exist,
-     *          i.e.: there are no right child in the subtree, return
-     *          minimum(parent.left). If N exists, return minimum(N)
+     * 1. KeyNode is left child of its parent:<br>
+     * In this case, the parent of keyNode is returned as the
+     * predecessor.
+     * <br>
+     * 2. KeyNode is right child of its parent. Two cases arise:<br>
+     * 2a. Parent has no left child:<br>
+     * In this case, parent is returned as the predecessor.<br>
+     * 2b. Parent has a left child:<br>
+     * Walk down parent.left and find a node N which is the
+     * deepest right child in the subtree. If N does not exist,
+     * i.e.: there are no right child in the subtree, return
+     * minimum(parent.left). If N exists, return minimum(N)
      * </p>
      */
     public Node<T> getPreorderPredecessor(T key) {
@@ -490,11 +509,11 @@ public class BinarySearchTree<T extends Comparable<T>> {
     /**
      * Preorder walk. Root -> Left -> Right
      */
-    public void preorderWalk(Node<T> root) {
+    public void preorderCollect(Node<T> root, List<T> nodes) {
         if (root != null) {
-            System.out.println(root.key);
-            preorderWalk(root.left);
-            preorderWalk(root.right);
+            nodes.add(root.key);
+            preorderCollect(root.left, nodes);
+            preorderCollect(root.right, nodes);
         }
     }
 
@@ -502,18 +521,18 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * Returns the postorder successor of the given key, if exists.
      * <br>
      * <p>In postorder walk, root is printed last, after its left
-     *  and right child.
+     * and right child.
      * <br><br>
      * Cases:<br>
-     *  1. KeyNode is right child of its parent:<br>
-     *      In this case, successor would be the parent.
-     *  <br>
-     *  2. KeyNode is left child of its parent:<br>
-     *      If parent.right doesn't exist, successor would be the parent.
-     *      If parent.right exists, walk down parent.right and find node N
-     *      which is the deepest left child in subtree. If such N does not
-     *      exist, i.e.: there are no left child in the subtree, return
-     *      maximum(parent.right). If N exists, return maximum(N).
+     * 1. KeyNode is right child of its parent:<br>
+     * In this case, successor would be the parent.
+     * <br>
+     * 2. KeyNode is left child of its parent:<br>
+     * If parent.right doesn't exist, successor would be the parent.
+     * If parent.right exists, walk down parent.right and find node N
+     * which is the deepest left child in subtree. If such N does not
+     * exist, i.e.: there are no left child in the subtree, return
+     * maximum(parent.right). If N exists, return maximum(N).
      * </p>
      */
     public Node<T> getPostorderSuccessor(T key) {
@@ -547,18 +566,18 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * Returns the postorder predecessor of the given key, if exists.
      * <br>
      * <p>In postorder walk, root is printed last, after its left
-     *  and right child.
+     * and right child.
      * <br><br>
      * Cases:<br>
-     *  1. KeyNode has children:<br>
-     *      In this case, keyNode is checked to have left or right
-     *      child in that order, if either of it exists, its returned
-     *      as the predecessor.
-     *  <br>
-     *  2. KeyNode is a leaf:<br>
-     *      Walk up the tree and find a node N which has both left and
-     *      right child and whose right child is also a parent of keyNode.
-     *      If N exists, return N.left.
+     * 1. KeyNode has children:<br>
+     * In this case, keyNode is checked to have left or right
+     * child in that order, if either of it exists, its returned
+     * as the predecessor.
+     * <br>
+     * 2. KeyNode is a leaf:<br>
+     * Walk up the tree and find a node N which has both left and
+     * right child and whose right child is also a parent of keyNode.
+     * If N exists, return N.left.
      * </p>
      */
     public Node<T> getPostorderPredecessor(T key) {
@@ -593,40 +612,24 @@ public class BinarySearchTree<T extends Comparable<T>> {
         return possiblePred;
     }
 
-    public void postorderWalk (Node<T> root) {
+    public void postorderCollect(Node<T> root, List<T> nodes) {
         if (root != null) {
-            postorderWalk(root.left);
-            postorderWalk(root.right);
-            System.out.println(root.key);
+            postorderCollect(root.left, nodes);
+            postorderCollect(root.right, nodes);
+            nodes.add(root.key);
         }
     }
 
-    public static void main(String[] args) {
-        BinarySearchTree<Integer> bst = new BinarySearchTree<>();
-        bst.insert(100);
-        bst.insert(50);
-        bst.insert(25);
-        bst.insert(12);
-        bst.insert(18);
-        bst.insert(37);
-        bst.insert(75);
-        bst.insert(62);
-        bst.insert(68);
-        bst.insert(87);
-        bst.insert(200);
-        bst.insert(150);
-        bst.insert(125);
-        bst.insert(175);
-        bst.insert(300);
-        bst.insert(250);
-        bst.insert(225);
-        bst.insert(400);
-        bst.insert(350);
+    public boolean isEmpty() {
+        return size == 0;
+    }
 
-        Node<Integer> first = bst.search(100);
-        while (first != null) {
-            System.out.println(first.key);
-            first = bst.getPostorderPredecessor(first.key);
-        }
+    public int size() {
+        return size;
+    }
+
+    public void clear() {
+        root = null;
+        size = 0;
     }
 }
