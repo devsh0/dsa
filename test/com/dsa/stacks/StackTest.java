@@ -8,7 +8,7 @@ public class StackTest {
     private final int defaultCapacity = 5;
     @Test
     public void popTest() {
-        Stack<String> stack = new StackImpl<>(defaultCapacity);
+        Stack<String> stack = new Stack<>(defaultCapacity);
         String value = "value";
         stack.push(value);
         assertEquals(stack.pop(), value);
@@ -17,7 +17,7 @@ public class StackTest {
 
     @Test
     public void pushTest() {
-        Stack<String> stack = new StackImpl<>(defaultCapacity);
+        Stack<String> stack = new Stack<>(defaultCapacity);
         assertTrue(stack.isEmpty());
         String value = "value";
         stack.push(value);
@@ -26,7 +26,7 @@ public class StackTest {
 
     @Test
     public void isEmptyTest() {
-        Stack<Object> stack = new StackImpl<>(defaultCapacity);
+        Stack<Object> stack = new Stack<>(defaultCapacity);
         stack.push(new Object());
         assertFalse(stack.isEmpty());
         stack.pop();
@@ -35,7 +35,7 @@ public class StackTest {
 
     @Test
     public void overflowTest() {
-        Stack<Integer> stack = new StackImpl<>(defaultCapacity);
+        Stack<Integer> stack = new Stack<>(defaultCapacity);
         try {
             for (int i = 0; i <= defaultCapacity; i++)
                 stack.push(i);
@@ -49,7 +49,7 @@ public class StackTest {
 
     @Test
     public void underflowTest() {
-        Stack<Integer> stack = new StackImpl<>(defaultCapacity);
+        Stack<Integer> stack = new Stack<>(defaultCapacity);
         try {
             stack.pop();
         } catch (RuntimeException exc) {
@@ -62,7 +62,7 @@ public class StackTest {
 
     @Test
     public void clearTest() {
-        Stack<Integer> stack = new StackImpl<>(defaultCapacity);
+        Stack<Integer> stack = new Stack<>(defaultCapacity);
         stack.push(2);
         stack.push(5);
         assertTrue(stack.size() > 0);
@@ -72,7 +72,7 @@ public class StackTest {
 
     @Test
     public void sizeTest() {
-        Stack<Integer> stack = new StackImpl<>(defaultCapacity);
+        Stack<Integer> stack = new Stack<>(defaultCapacity);
         assertEquals(0, stack.size());
         stack.push(10);
         stack.push(20);
