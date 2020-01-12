@@ -4,12 +4,12 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class QueueImplTest {
+public class QueueTest {
     private final int defaultSize = 5;
 
     @Test
     public void simpleEnqueueTest() {
-        Queue<Integer> queue = new QueueImpl<>(defaultSize);
+        Queue<Integer> queue = new Queue<>(defaultSize);
         assertTrue(queue.isEmpty());
         queue.enqueue(10);
         assertEquals(1, queue.size());
@@ -17,7 +17,7 @@ public class QueueImplTest {
 
     @Test
     public void simpleDequeueTest() {
-        Queue<Integer> queue = new QueueImpl<>(defaultSize);
+        Queue<Integer> queue = new Queue<>(defaultSize);
         queue.enqueue(10);
         queue.enqueue(20);
         assertEquals(10, (int)queue.dequeue());
@@ -26,7 +26,7 @@ public class QueueImplTest {
 
     @Test
     public void underflowTest() {
-        Queue<Integer> queue = new QueueImpl<>(defaultSize);
+        Queue<Integer> queue = new Queue<>(defaultSize);
         queue.enqueue(10);
         try {
             queue.dequeue();
@@ -41,7 +41,7 @@ public class QueueImplTest {
 
     @Test
     public void overflowTest() {
-        Queue<Integer> queue = new QueueImpl<>(defaultSize);
+        Queue<Integer> queue = new Queue<>(defaultSize);
         for (int i = 0; i < defaultSize; i++)
             queue.enqueue(i);
 
@@ -59,7 +59,7 @@ public class QueueImplTest {
 
     @Test
     public void circularEnqueueTest() {
-        Queue<Integer> queue = new QueueImpl<>(defaultSize);
+        Queue<Integer> queue = new Queue<>(defaultSize);
         for (int i = 0; i < defaultSize; i++)
             queue.enqueue(i);
 
@@ -80,7 +80,7 @@ public class QueueImplTest {
 
     @Test
     public void circularDequeueTest() {
-        Queue<Integer> queue = new QueueImpl<>(defaultSize);
+        Queue<Integer> queue = new Queue<>(defaultSize);
         for (int i = 0; i < defaultSize; i++)
             queue.enqueue(i);
 
@@ -102,7 +102,7 @@ public class QueueImplTest {
 
     @Test
     public void clearTest() {
-        Queue<Integer> queue = new QueueImpl<>(defaultSize);
+        Queue<Integer> queue = new Queue<>(defaultSize);
         for (int i = 0; i < defaultSize; i++)
             queue.enqueue(i);
 

@@ -1,29 +1,26 @@
 package com.dsa.queues;
 
 @SuppressWarnings("unchecked")
-public class QueueImpl<T> implements Queue<T> {
+public class Queue<T> {
     private final int capacity;
     private Object[] data;
     private int size = 0;
     private int head = 0;
     private int tail = 0;
 
-    public QueueImpl(int initialCapacity) {
+    public Queue(int initialCapacity) {
         capacity = initialCapacity;
         data = new Object[capacity];
     }
 
-    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
-    @Override
     public boolean isFull() {
         return size == capacity;
     }
 
-    @Override
     public void enqueue(T value) {
         if (isFull())
             throw new RuntimeException("Queue overflow");
@@ -32,7 +29,6 @@ public class QueueImpl<T> implements Queue<T> {
         tail = tail == capacity - 1 ? 0 : tail + 1;
     }
 
-    @Override
     public T dequeue() {
         if (isEmpty())
             throw new RuntimeException("Queue underflow");
@@ -42,12 +38,10 @@ public class QueueImpl<T> implements Queue<T> {
         return value;
     }
 
-    @Override
     public int size() {
         return size;
     }
 
-    @Override
     public void clear () {
         size = head = tail = 0;
     }

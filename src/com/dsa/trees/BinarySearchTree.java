@@ -40,14 +40,13 @@ public class BinarySearchTree<T extends Comparable<T>> {
                 current = current.right;
             else {
                 // make sure all the duplicates form a linked list
-                // where the head points to the original node.
+                // where head is the original node.
                 newNode.right = current.right;
                 current.right = newNode;
                 return;
             }
         }
 
-        // at this point, parent will be pointing to a leaf node
         if (parent.keyGT(key))
             parent.left = newNode;
         else parent.right = newNode;

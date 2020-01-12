@@ -1,53 +1,72 @@
 package com.dsa.trees;
 
-class Node<T extends Comparable<T>> {
+public class Node<T extends Comparable<T>> implements TreePrinter.PrintableNode {
     Node<T> left;
     Node<T> right;
     T key;
 
     /**
-     * this.key > param.key
+     * this.key > otherKey
      */
-    boolean keyGT(T ob) {
-        return key.compareTo(ob) > 0;
+    boolean keyGT(T otherKey) {
+        return key.compareTo(otherKey) > 0;
     }
 
     /**
-     * this.key < param.key
+     * this.key < otherKey
      */
-    boolean keyST(T ob) {
-        return key.compareTo(ob) < 0;
+    boolean keyST(T otherKey) {
+        return key.compareTo(otherKey) < 0;
     }
 
     /**
-     * this.key == param.key
+     * this.key == otherKey
      */
-    boolean keyEquals(T ob) {
-        return key.compareTo(ob) == 0;
+    boolean keyEquals(T otherKey) {
+        return key.compareTo(otherKey) == 0;
     }
 
     /**
-     * this.key != param.key
+     * this.key != otherKey
      */
-    boolean keyNotEquals(T ob) {
-        return !keyEquals(ob);
+    boolean keyNotEquals(T otherKey) {
+        return !keyEquals(otherKey);
     }
 
     /**
-     * this.key >= param.key
+     * this.key >= otherKey
      */
-    boolean keyGToE(T ob) {
-        return keyGT(ob) || keyEquals(ob);
+    boolean keyGToE(T otherKey) {
+        return keyGT(otherKey) || keyEquals(otherKey);
     }
 
     /**
-     * this.key <= param.key
+     * this.key <= otherKey
      */
-    boolean keySToE(T ob) {
-        return keyST(ob) || keyEquals(ob);
+    boolean keySToE(T otherKey) {
+        return keyST(otherKey) || keyEquals(otherKey);
     }
 
     Node(T val) {
         this.key = val;
+    }
+
+    @Override
+    public TreePrinter.PrintableNode getLeft() {
+        return left;
+    }
+
+    @Override
+    public TreePrinter.PrintableNode getRight() {
+        return right;
+    }
+
+    @Override
+    public String getText() {
+        return String.valueOf(key);
+    }
+
+    public T getKey() {
+        return key;
     }
 }
