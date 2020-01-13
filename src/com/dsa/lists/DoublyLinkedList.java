@@ -1,6 +1,5 @@
 package com.dsa.lists;
 
-// todo: allow insertion at tail
 public class DoublyLinkedList<T> {
     static class Node<T> {
         T data;
