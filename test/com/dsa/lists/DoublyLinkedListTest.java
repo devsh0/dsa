@@ -70,4 +70,15 @@ public class DoublyLinkedListTest {
         list.insert(43);
         assertFalse(list.isEmpty());
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nullNotAllowedTest () {
+        DoublyLinkedList<Integer> list = new DoublyLinkedList<>();
+        try {
+            list.insert(34);
+            list.insert(null);
+        } catch (IllegalArgumentException eArg) {
+            list.insertAtTail(null);
+        }
+    }
 }

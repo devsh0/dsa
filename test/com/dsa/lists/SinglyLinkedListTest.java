@@ -7,7 +7,7 @@ import static junit.framework.TestCase.*;
 
 public class SinglyLinkedListTest {
     @Test
-    public void insertionTest () {
+    public void insertionTest() {
         SinglyLinkedList<Integer> list = new SinglyLinkedList<>();
         assertEquals(0, list.size());
         list.insert(23);
@@ -16,7 +16,7 @@ public class SinglyLinkedListTest {
     }
 
     @Test
-    public void removeTest () {
+    public void removeTest() {
         SinglyLinkedList<Integer> list = new SinglyLinkedList<>();
         list.insert(23);
         list.insert(54);
@@ -32,7 +32,7 @@ public class SinglyLinkedListTest {
     }
 
     @Test
-    public void containsTest () {
+    public void containsTest() {
         SinglyLinkedList<Integer> list = new SinglyLinkedList<>();
         int key = 32;
         assertFalse(list.contains(key));
@@ -41,10 +41,17 @@ public class SinglyLinkedListTest {
     }
 
     @Test
-    public void isEmptyTest () {
+    public void isEmptyTest() {
         SinglyLinkedList<Integer> list = new SinglyLinkedList<>();
         assertTrue(list.isEmpty());
         list.insert(43);
         assertFalse(list.isEmpty());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nullNotAllowedTest() {
+        SinglyLinkedList<Integer> list = new SinglyLinkedList<>();
+        list.insert(34);
+        list.insert(null);
     }
 }

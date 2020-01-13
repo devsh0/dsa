@@ -54,7 +54,7 @@ public class DoublyLinkedList<T> {
     }
 
     public void insertAtTail(T value) {
-        if (tail == null)
+        if (value == null)
             insert(value);
         else {
             Node<T> newNode = new Node<>(value);
