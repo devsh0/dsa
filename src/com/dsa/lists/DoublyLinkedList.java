@@ -54,7 +54,7 @@ public class DoublyLinkedList<T> {
 
     public void insertAtTail(T value) {
         if (value == null)
-            insert(value);
+            throw new IllegalArgumentException("null not allowed here!");
         else {
             Node<T> newNode = new Node<>(value);
             tail.succ = newNode;
