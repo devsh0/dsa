@@ -127,6 +127,6 @@ public class DoublyLinkedList<T> {
     }
 
     public boolean isEmpty() {
-        return head == null;
+        return head == null && tail == null;
     }
 }
