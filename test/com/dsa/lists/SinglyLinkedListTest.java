@@ -54,4 +54,18 @@ public class SinglyLinkedListTest {
         list.insert(34);
         list.insert(null);
     }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void elementAccessTest () {
+        SinglyLinkedList<Integer> list = new SinglyLinkedList<>();
+        try {
+            list.get(0);
+        } catch (IndexOutOfBoundsException iOut) {
+            list.insert(4);
+            assertEquals(4, list.get(0).intValue());
+            list.get(1);
+        }
+
+        fail();
+    }
 }

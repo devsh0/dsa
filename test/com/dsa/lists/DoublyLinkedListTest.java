@@ -80,5 +80,21 @@ public class DoublyLinkedListTest {
         } catch (IllegalArgumentException eArg) {
             list.insertAtTail(null);
         }
+
+        fail();
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void elementAccessTest () {
+        DoublyLinkedList<Integer> list = new DoublyLinkedList<>();
+        try {
+            list.get(0);
+        } catch (IndexOutOfBoundsException iOut) {
+            list.insert(4);
+            assertEquals(4, list.get(0).intValue());
+            list.get(1);
+        }
+
+        fail();
     }
 }
