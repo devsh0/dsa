@@ -12,7 +12,8 @@ public class DoublyLinkedList<T> {
         }
     }
 
-    private Node<T> head;
+    Node<T> head;
+    Node<T> tail;
     private int size;
 
     /**
@@ -45,9 +46,23 @@ public class DoublyLinkedList<T> {
         if (head != null) {
             head.pred = newNode;
             newNode.succ = head;
-        }
+        } else
+            tail = newNode;
+
         head = newNode;
         size += 1;
+    }
+
+    public void insertAtTail(T value) {
+        if (tail == null)
+            insert(value);
+        else {
+            Node<T> newNode = new Node<>(value);
+            tail.succ = newNode;
+            newNode.pred = tail;
+            tail = newNode;
+            size += 1;
+        }
     }
 
     private Node<T> getNode(T value) {
@@ -77,11 +92,25 @@ public class DoublyLinkedList<T> {
         else
             pred.succ = node.succ;
 
-        if (succ != null)
+        if (node == tail)
+            tail = tail.pred;
+        else
             succ.pred = node.pred;
 
         size -= 1;
         return true;
+    }
+
+    public T popTail() {
+        if (tail != null) {
+            T lData = tail.data;
+            if (tail.pred != null)
+                tail.pred.succ = null;
+            tail = tail.pred;
+            size -= 1;
+            return lData;
+        }
+        return null;
     }
 
     public int size() {
@@ -94,7 +123,7 @@ public class DoublyLinkedList<T> {
     }
 
     public void clear() {
-        head = null;
+        head = tail = null;
         size = 0;
     }
 
