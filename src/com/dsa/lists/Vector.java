@@ -1,8 +1,8 @@
 package com.dsa.lists;
 
 public class Vector<T> {
-    private final double SHRINK_FACTOR = 1.5;
-    private final double EXPANSION_FACTOR = 2.0;
+    final double SHRINK_FACTOR = 1.5;
+    final double EXPANSION_FACTOR = 2.0;
 
     Object[] data;
     int size;
@@ -10,11 +10,13 @@ public class Vector<T> {
 
     public Vector() {
         size = internalSize = 0;
+        data = new Object[size];
     }
 
     public Vector(T... elements) {
-        size = internalSize = elements.length;
-        data = new Object[elements.length];
+        size = elements.length;
+        internalSize = (int)(size * EXPANSION_FACTOR);
+        data = new Object[internalSize];
         System.arraycopy(elements, 0, data, 0, size);
     }
 
