@@ -93,6 +93,16 @@ public class Vector<T> {
     }
 
     /**
+     * Set {@code element} at {@code index}
+     *
+     * @throws IndexOutOfBoundsException if {@code index} is not in [0, size)
+     */
+    public void set (int index, T element) throws IndexOutOfBoundsException {
+        checkIndex(index, false);
+        data[index] = element;
+    }
+
+    /**
      * Appends an element to the end of the vector.
      *
      * @param element the element to be appended
