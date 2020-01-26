@@ -1,9 +1,9 @@
 package com.dsa.utils;
 
+import com.dsa.lists.Vector;
 import com.dsa.trees.BinarySearchTree;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -31,4 +31,9 @@ public abstract class DsaUtils {
     public static int getRandomInt (int min, int max) {
         return ThreadLocalRandom.current().nextInt(min, max);
     }
+
+    /*public static <T> void copyVector (Vector<T> src, Vector<T> dest) {
+        for (int i = 0; i < src.size(); i++)
+            dest.add(src.get(i));
+    }*/
 }
